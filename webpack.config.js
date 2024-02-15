@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: './client/index.js',
   output: {
-    path: path.resolve(__dirname, './dist'),
+    path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js'
   },
   plugins: [
@@ -34,7 +34,7 @@ module.exports = {
   },
   devServer: {
     host: 'localhost',
-    port: 8081,
+    port: 8080,
     hot: true,
     liveReload: true,
     historyApiFallback: true,

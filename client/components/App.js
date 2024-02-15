@@ -1,10 +1,21 @@
 import React, { Component } from 'react';
+import Middle from './Middle';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+
+const theme = extendTheme({
+  components: {
+    Icon: {
+      defaultProps: {
+      }
+    }
+  }
+});
 
 const App = () => {
   return (
-    <div>
-      <h1>Testing</h1>
-    </div>
+    <ChakraProvider theme={theme}>
+      <Middle></Middle>
+    </ChakraProvider>
   );
 };
 
