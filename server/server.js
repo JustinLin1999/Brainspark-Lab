@@ -7,13 +7,6 @@ const Account = require('./models/accountModel');
 const Record = require('./models/recordModel');
 const bcrypt = require('bcryptjs');
 
-// uncomment the below for proxy challenge
-// const leaderList = [
-//   {name: 'Anna', id: 'a0'},
-//   {name: 'Ben', id: 'b0'},
-//   {name: 'Clara', id: 'c0'},
-//   {name: 'David', id: 'd0'},
-// ];
 const PORT = 3000;
 const app = express();
 const mongoURL = 'mongodb://localhost/brainspark-lab';

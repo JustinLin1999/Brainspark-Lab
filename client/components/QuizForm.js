@@ -44,7 +44,7 @@ const QuizForm = ({ setQuizObject }) => {
     console.log(apiString);
 
     fetch(apiString)
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
         console.log(data);
         if (data.response_code === 0) {
