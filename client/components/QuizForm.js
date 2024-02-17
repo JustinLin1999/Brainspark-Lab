@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Flex, Box, Stack, Heading, FormControl, FormLabel, FormErrorMessage, Input, InputGroup, InputLeftElement, InputRightElement, Button, Icon } from '@chakra-ui/react';
 import {
+  Flex, Box, Stack, Heading, FormControl, FormLabel, FormErrorMessage, Input, InputGroup, InputLeftElement, InputRightElement, Button, Icon, IconButton,
   NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper,
-  SliderFilledTrack, SliderTrack, Slider, SliderThumb, Select, Radio, RadioGroup, Checkbox, CheckboxGroup
+  SliderFilledTrack, SliderTrack, Slider, SliderThumb, Select, Radio, RadioGroup, Checkbox, CheckboxGroup,
+  Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverFooter, PopoverArrow, PopoverCloseButton,
+  Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer,
 } from '@chakra-ui/react';
 import { AddIcon, MinusIcon } from '@chakra-ui/icons';
 import { RiNumbersFill } from "react-icons/ri";
@@ -10,6 +12,7 @@ import { BiSolidCategoryAlt  } from "react-icons/bi";
 import { PiGaugeBold } from "react-icons/pi";
 import { BsUiRadios } from "react-icons/bs";
 import { useNavigate } from 'react-router-dom';
+import { MdAccountBox } from "react-icons/md";
 //import { response } from 'express';
 
 const QuizForm = ({ setQuizObject }) => {
@@ -19,6 +22,14 @@ const QuizForm = ({ setQuizObject }) => {
   const [questionTypes, setQuestionTypes] = useState([true, false, false]);
   const questionType = ['any', 'multiple', 'boolean'].filter((el, i) => questionTypes[i])[0];
   const navigate = useNavigate();
+
+  const [recentQuestionNumber, setRecentQuestionNumber] = useState(10);
+  const [recentCategory, setRecentCategory] = useState('any');
+  const [recentDifficulty, setRecentDifficulty] = useState('any');
+  const [recentQuestionType, setRecentQuestionType] = useState('any');
+
+  console.log(document.cookie);
+
   const handleStartQuiz = event => {
     event.preventDefault();
     let apiString = 'https://opentdb.com/api.php?';
@@ -46,10 +57,54 @@ const QuizForm = ({ setQuizObject }) => {
 
   return (
     <Flex width="full" align="center" justifyContent="center" p={8}>
-     <Box p={8} maxWidth="700px" borderWidth={1} borderRadius={8} boxShadow="lg"> {/*width='31rem' borderWidth='1px' borderRadius='lg' overflow='hidden' */}
-        <Box textAlign="center">
-          <Heading color='teal.300'>Quiz Option</Heading>
-        </Box>
+      <Box p={8} maxWidth="700px" borderWidth={1} borderRadius={8} boxShadow="lg"> {/*width='31rem' borderWidth='1px' borderRadius='lg' overflow='hidden' */}
+        <Flex width="full" align="center" justifyContent="center">
+          <Box textAlign="center" w='80%' pl='18%'>
+            <Heading color='teal.300'>Quiz Option</Heading>
+          </Box>
+          {/* testing */}
+          <Box textAlign="right" pl='10%'>
+            <Popover w='400px'>
+              <PopoverTrigger>
+                <IconButton
+                  icon={<MdAccountBox size={30}/>}
+                  color='teal.300'
+                  variant="ghost"
+                />
+              </PopoverTrigger>
+              <PopoverContent textAlign="left">
+                <PopoverArrow />
+                <PopoverCloseButton />
+                <PopoverHeader textAlign='center' fontSize={24}><b>Recent Result</b></PopoverHeader>
+                <PopoverBody>
+                <TableContainer>
+                    <Table variant='simple' fontSize={18}>
+                      <Tbody height='10px'>
+                        <Tr >
+                          <Td pl='5px' pr='5px' textAlign='left' color='gray.600'><b>Question Number</b></Td>
+                          <Td pl='5px' pr='5px' textAlign='left' color='purple.500' width='10px'><b>{recentQuestionNumber}</b></Td>
+                        </Tr>
+                        <Tr>
+                          <Td pl='5px' pr='5px' textAlign='left' color='gray.600'><b>Category</b></Td>
+                          <Td pl='5px' pr='5px' textAlign='left' color='green.500'><b>{recentCategory.toUpperCase()}</b></Td>
+                        </Tr>
+                        <Tr>
+                          <Td pl='5px' pr='5px' textAlign='left' color='gray.600'><b>Difficulty</b></Td>
+                          <Td pl='5px' pr='5px' textAlign='left' color='red.500'><b>{recentDifficulty.toUpperCase()}</b></Td>
+                        </Tr>
+                        <Tr>
+                          <Td pl='5px' pr='5px' textAlign='left' color='gray.600'><b>Question Type</b></Td>
+                          <Td pl='5px' pr='5px' textAlign='left' color='blue.500'><b>{recentQuestionType.toUpperCase()}</b></Td>
+                        </Tr>
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          </Box>
+        </Flex>
+
         <Box my={4} textAlign="left" width='30rem'>
           <form>
             <FormControl>

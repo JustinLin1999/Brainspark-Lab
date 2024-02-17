@@ -9,7 +9,7 @@ const SALT_WORK_FACTOR = 10;
 
 const accountSchema = new Schema({
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
 });
 
 accountSchema.pre('save', function (next) {
@@ -38,4 +38,4 @@ accountSchema.pre('save', function (next) {
   });
 });
 
-module.exports = mongoose.model('accounts', accountSchema);
+module.exports = mongoose.model('Account', accountSchema);

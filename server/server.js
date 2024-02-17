@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const cors = require("cors");
 const Account = require('./models/accountModel');
+const Record = require('./models/recordModel');
 const bcrypt = require('bcryptjs');
 
 // uncomment the below for proxy challenge
@@ -18,9 +19,9 @@ const app = express();
 const mongoURL = 'mongodb://localhost/brainspark-lab';
 mongoose.connect(mongoURL);
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use(cookieParser());
 //app.use(cors());
 // to set cookie
 app.use(cors({ origin: true, credentials: true }))
@@ -35,11 +36,11 @@ const corsEnable = (res) => {
 
 console.log(app.settings.env);
 app.get('/bundle.js', (req, res) =>{
-  console.log('bundle request')
+  console.log('bundle request');
   return res.status(200).sendFile(path.join(__dirname, './../dist/bundle.js'));
-})
+});
 app.get('/*',(req,res)=> {
-  console.log('reuest recieved')
+  console.log('reuest recieved');
   return res.status(200).sendFile(path.join(__dirname, './../dist/index.html'));
 });
 
@@ -54,7 +55,7 @@ app.post('/signUp', (req, res, next) => {
   newAccount.save()
     .then((account) => {
       console.log(account);
-      res.cookie('user', account.username);
+      res.cookie('quiz_user', account.username);
       return res.status(200).json(account);
     })
     .catch((err) => next({
@@ -77,7 +78,7 @@ app.post('/signIn', (req, res, next) => {
           message: {err},
         });
         if (isMatch) {
-          res.cookie('user', account.username, {maxAge: 9000000000, httpOnly: true });
+          res.cookie('quiz_user', account._id, {maxAge: 9000000000, httpOnly: true });
           return res.status(200).json(account);
         } else return res.status(400).json({ result: 'Not Found'});
       });
@@ -89,21 +90,31 @@ app.post('/signIn', (req, res, next) => {
   }));
 })
 
-app.post('/getQuiz', (req, res, next) => {
-  const {apiString} = req.body;
-  console.log(apiString);
-  newAccount.save()
+app.post('/storeResult', (req, res, next) => {
+  const { questionNumber, category, difficulty, questionType, dataArray, answerArray, correctCount } = req.body;
+  console.log(questionNumber, category, difficulty, questionType, dataArray, answerArray, correctCount);
+  const user = new mongoose.Types.ObjectId(req.cookies.quiz_user);
+  const newRecord = new Record({
+    user,
+    question_number: questionNumber,
+    category,
+    difficulty,
+    question_type: questionType,
+    data_array: JSON.stringify(dataArray),
+    answer_array: JSON.stringify(answerArray),
+    correct_count: correctCount
+  });
+  newRecord.save()
     .then((account) => {
       console.log(account);
       return res.status(200).json(account);
     })
     .catch((err) => next({
-      log:'Express error handler caught signUp error',
+      log:'Express error handler caught storeResult error',
       status: 500,
       message: {err}
-  }));
+    }));
 })
-
 //testing
 app.get('/testing', (req, res) => {
   Account.find({})
