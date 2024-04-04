@@ -28,8 +28,6 @@ const QuizForm = ({ setQuizObject }) => {
   const [recentDifficulty, setRecentDifficulty] = useState('any');
   const [recentQuestionType, setRecentQuestionType] = useState('any');
 
-  console.log(document.cookie);
-
   const handleStartQuiz = event => {
     event.preventDefault();
     let apiString = 'https://opentdb.com/api.php?';

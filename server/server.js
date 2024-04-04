@@ -6,12 +6,13 @@ const cors = require("cors");
 const Account = require('./models/accountModel');
 const Record = require('./models/recordModel');
 const bcrypt = require('bcryptjs');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const PORT = 3000;
 const app = express();
-const mongoURL = 'mongodb://localhost/brainspark-lab';
-mongoose.connect(mongoURL);
-
+const mongoURI = process.env.MONGO_URI;
+mongoose.connect(mongoURI);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -36,10 +37,6 @@ app.get('/*',(req,res)=> {
   console.log('reuest recieved');
   return res.status(200).sendFile(path.join(__dirname, './../dist/index.html'));
 });
-
-// app.get('/api/leaders', (req, res) => {
-//   return res.status(200).send(leaderList);
-// });
 
 app.post('/signUp', (req, res, next) => {
   const {username, password} = req.body;
