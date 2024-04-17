@@ -2,22 +2,20 @@ import React, { useState } from 'react';
 import { Flex, Box, Heading, FormControl, FormLabel, FormErrorMessage, Input, InputGroup, InputLeftElement, InputRightElement, Button, Spacer } from '@chakra-ui/react';
 import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
-//import { response } from 'express';
 
 const LogInForm = () => {
   const BACKEND_URL = 'http://localhost:3000';
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [show, setShow] = React.useState(false);
+  const [show, setShow] = useState(false);
   const [isUsernameEmpty, setUsernameEmpty] = useState(false);
   const [isPasswordEmpty, setPasswordEmpty] = useState(false);
   const navigate = useNavigate();
   const handleView = () => setShow(!show);
-  const handleLogin = event => {
-    event.preventDefault();
+  const handleLogin = () => {
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
-    if(!isUsernameEmpty && !isPasswordEmpty) {
+    if(username && password) {
       console.log('start sign in');
       fetch(BACKEND_URL + '/signIn', {
         method: 'POST',
@@ -43,7 +41,7 @@ const LogInForm = () => {
     event.preventDefault();
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
-    if(!isUsernameEmpty && !isPasswordEmpty) {
+    if(username && password) {
       console.log('start sign up');
       fetch(BACKEND_URL + '/signUp', {
         method: 'POST',

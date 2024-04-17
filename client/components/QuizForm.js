@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { replaceQuiz } from '../reducers/quizSlice';
 import {
   Flex, Box, Stack, Heading, FormControl, FormLabel, FormErrorMessage, Input, InputGroup, InputLeftElement, InputRightElement, Button, Icon, IconButton,
   NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper,
@@ -13,9 +15,8 @@ import { PiGaugeBold } from "react-icons/pi";
 import { BsUiRadios } from "react-icons/bs";
 import { useNavigate } from 'react-router-dom';
 import { MdAccountBox } from "react-icons/md";
-//import { response } from 'express';
 
-const QuizForm = ({ setQuizObject }) => {
+const QuizForm = () => {
   const [questionNumber, setQuestionNumber] = useState(10);
   const [category, setCategory] = useState('any');
   const [difficulty, setDifficulty] = useState('any');
@@ -27,6 +28,8 @@ const QuizForm = ({ setQuizObject }) => {
   const [recentCategory, setRecentCategory] = useState('any');
   const [recentDifficulty, setRecentDifficulty] = useState('any');
   const [recentQuestionType, setRecentQuestionType] = useState('any');
+
+  const dispatch = useDispatch();
 
   const handleStartQuiz = event => {
     event.preventDefault();
@@ -46,7 +49,8 @@ const QuizForm = ({ setQuizObject }) => {
       .then(data => {
         console.log(data);
         if (data.response_code === 0) {
-          setQuizObject({questionNumber, category, difficulty, questionType, data: data.results});
+          // setQuizObject({questionNumber, category, difficulty, questionType, data: data.results});
+          dispatch(replaceQuiz({questionNumber, category, difficulty, questionType, data: data.results}));
           navigate('/quiz');
         }
       })

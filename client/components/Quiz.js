@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   Flex, Spacer, Box, Heading, Stack, Center, Badge, Button, ButtonGroup, IconButton, useDisclosure,
   Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverFooter, PopoverArrow, PopoverCloseButton,
@@ -11,13 +12,14 @@ import { InfoIcon } from '@chakra-ui/icons';
 import { BiSolidLeftArrow, BiSolidRightArrow  } from "react-icons/bi";
 import { useNavigate } from 'react-router-dom';
 
-const Quiz = ({ quizObject }) => {
+const Quiz = () => {
+  const quizObject = useSelector((state) => state.quiz.quizObject);
   const BACKEND_URL = 'http://localhost:3000';
   const navigate = new useNavigate();
   const quizExample = {questionNumber: 5, category: 'geography', difficulty: 'easy', questionType: 'any', data:[{"type":"multiple","difficulty":"easy","category":"Geography","question":"Which Russian oblast forms a border with Poland?","correct_answer":"Kaliningrad","incorrect_answers":["Samara","Nizhny Novgorod","Omsk"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Vatican City is a country.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What is the capital of Indonesia?","correct_answer":"Jakarta","incorrect_answers":["Bandung","Medan","Palembang"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Alaska is the largest state in the United States.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What country has a horizontal bicolor red and white flag?","correct_answer":"Monaco","incorrect_answers":["Bahrain","Malta","Liechenstein"]}]};
-  // const {questionNumber, category, difficulty, questionType, data} = quizObject;
+  const {questionNumber, category, difficulty, questionType, data} = quizObject;
   // const changeQuiz = (index) => setQuiz(data[index]);
-  const {questionNumber, category, difficulty, questionType, data} = quizExample;
+  // const {questionNumber, category, difficulty, questionType, data} = quizExample;
   const [quizIndex, setQuizIndex] = useState(0);
   const [quiz, setQuiz] = useState(data[0]);
   const [buttonBorderColor, setButtonBorderColor] = useState(['0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset']);

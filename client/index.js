@@ -1,14 +1,15 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './components/App';
-
-// uncomment so that webpack can bundle styles
-// import './scss/application.scss';
-console.log('outside App');
-// render(
-//   <App />,
-//   document.getElementById('root')
-// );
+import Middle from './components/Middle';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { store } from './store';
+import { Provider } from 'react-redux';
 
 const root = createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(
+  <Provider store={store}>
+    <ChakraProvider>
+      <Middle />
+    </ChakraProvider>
+  </Provider>
+);
