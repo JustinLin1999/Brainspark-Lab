@@ -74,7 +74,7 @@ const Quiz = () => {
       if (currentAnswer.toLowerCase() === data[index].correct_answer.toLowerCase()) counting++;
       console.log(currentAnswer, data[index].correct_answer, index);
     }
-    fetch(BACKEND_URL + '/storeResult', {
+    fetch(BACKEND_URL + '/quiz/storeResult', {
       method: 'POST',
       credentials: 'include',
       headers: {

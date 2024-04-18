@@ -15,6 +15,7 @@ import { PiGaugeBold } from "react-icons/pi";
 import { BsUiRadios } from "react-icons/bs";
 import { useNavigate } from 'react-router-dom';
 import { MdAccountBox } from "react-icons/md";
+import axios from 'axios';
 
 const QuizForm = () => {
   const [questionNumber, setQuestionNumber] = useState(10);
@@ -31,8 +32,7 @@ const QuizForm = () => {
 
   const dispatch = useDispatch();
 
-  const handleStartQuiz = event => {
-    event.preventDefault();
+  const handleStartQuiz = async () => {
     let apiString = 'https://opentdb.com/api.php?';
     console.log(questionNumber);
     console.log(category);
@@ -44,17 +44,14 @@ const QuizForm = () => {
     apiString += questionTypes[1] ? '&type=multiple' : questionTypes[2] ? '&type=boolean' : '';
     console.log(apiString);
 
-    fetch(apiString)
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-        if (data.response_code === 0) {
-          // setQuizObject({questionNumber, category, difficulty, questionType, data: data.results});
-          dispatch(replaceQuiz({questionNumber, category, difficulty, questionType, data: data.results}));
-          navigate('/quiz');
-        }
-      })
-      .catch(err => console.log('QuizForm fetch api Error: ', err));
+    try {
+      const fetchQuizResult = await axios(apiString);
+      console.log(fetchQuizResult)
+      if (fetchQuizResult.data.response_code === 0) {
+        dispatch(replaceQuiz({questionNumber, category, difficulty, questionType, data: fetchQuizResult.data.results}));
+        navigate('/quiz');
+      }
+    } catch (err) {console.log('QuizForm fetch api Error: ', err)}
   };
 
   return (
@@ -229,7 +226,7 @@ const QuizForm = () => {
 
             {/* Start Quiz */}
             <Button color='white' _hover={{ bg: 'gray.100', color:'teal.300' }} bg='teal.300' border='1px' borderColor='#ccd0d5' width="full"
-            mt={6} type="submit" onClick={handleStartQuiz}>
+            mt={6} onClick={handleStartQuiz}>
               <b>S t a r t&nbsp;&nbsp;&nbsp;&nbsp;Q u i z !</b>
             </Button>
           </form>

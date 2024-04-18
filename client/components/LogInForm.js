@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Flex, Box, Heading, FormControl, FormLabel, FormErrorMessage, Input, InputGroup, InputLeftElement, InputRightElement, Button, Spacer } from '@chakra-ui/react';
 import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const LogInForm = () => {
   const BACKEND_URL = 'http://localhost:3000';
@@ -12,50 +13,32 @@ const LogInForm = () => {
   const [isPasswordEmpty, setPasswordEmpty] = useState(false);
   const navigate = useNavigate();
   const handleView = () => setShow(!show);
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
     if(username && password) {
       console.log('start sign in');
-      fetch(BACKEND_URL + '/signIn', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({username, password}),
-        withCredentials: true, credentials: 'include'
-      })
-        .then(res => res.json())
-        .then(data => {
-          console.log(data);
-          if (data.result === 'Not Found') {
-            navigate('/login');
-          } else {
-            navigate('/quizform');
-          }
-        })
-        .catch(err => console.log('LoginForm fetch /signIn: Error: ', err));
+      try {
+        const loginResult = await axios.post(BACKEND_URL + '/user/signIn', {username, password}, {withCredentials: true});
+        console.log(loginResult);
+        if (loginResult.result === 'Not Found') {
+          navigate('/login');
+        } else {
+          navigate('/quizform');
+        }
+      } catch (err) {console.log('LoginForm fetch /signIn: Error: ', err)}
     }
   };
-  const handleSignUp = event => {
-    event.preventDefault();
+  const handleSignUp = async () => {
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
     if(username && password) {
       console.log('start sign up');
-      fetch(BACKEND_URL + '/signUp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({username, password}),
-      })
-        .then(res => res.json())
-        .then(data => {
-          console.log(data);
-          navigate('/quizform');
-        })
-        .catch(err => console.log('LoginForm fetch /signUp: Error: ', err));
+      try {
+        const signUpResult = await axios.post(BACKEND_URL + '/user/signUp', {username, password}, {withCredentials: true});
+        console.log(signUpResult);
+        navigate('/quizform');
+      } catch (err) {console.log('LoginForm fetch /signUp: Error: ', err)}
     }
   };
   const handleGuest = () => {
