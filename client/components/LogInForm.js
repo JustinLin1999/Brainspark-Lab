@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Flex, Box, Heading, FormControl, FormLabel, FormErrorMessage, Input, InputGroup, InputLeftElement, InputRightElement, Button, Spacer } from '@chakra-ui/react';
+import {
+  Flex, Box, Heading, FormControl, FormLabel, FormErrorMessage, Input, InputGroup, InputLeftElement, InputRightElement, Button, Spacer
+} from '@chakra-ui/react';
 import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -41,9 +43,7 @@ const LogInForm = () => {
       } catch (err) {console.log('LoginForm fetch /signUp: Error: ', err)}
     }
   };
-  const handleGuest = () => {
-    navigate('/quizform');
-  };
+  const handleGuest = () => {navigate('/quizform')};
 
   return (
     <Flex width="full" align="center" justifyContent="center" p={8}>
