@@ -9,19 +9,22 @@ import axios from 'axios';
 const LogInForm = () => {
   const BACKEND_URL = 'http://localhost:3000';
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
   const [isUsernameEmpty, setUsernameEmpty] = useState(false);
+  const [isEmailEmpty, setEmailEmpty] = useState(false);
   const [isPasswordEmpty, setPasswordEmpty] = useState(false);
   const navigate = useNavigate();
   const handleView = () => setShow(!show);
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
     if(username && password) {
       console.log('start sign in');
       try {
-        const loginResult = await axios.post(BACKEND_URL + '/user/signIn', {username, password}, {withCredentials: true});
+        const loginResult = await axios.post(BACKEND_URL + '/user/signIn', {username, password, email}, {withCredentials: true});
         console.log(loginResult);
         if (loginResult.result === 'Not Found') {
           navigate('/login');
@@ -31,13 +34,15 @@ const LogInForm = () => {
       } catch (err) {console.log('LoginForm fetch /signIn: Error: ', err)}
     }
   };
-  const handleSignUp = async () => {
+  const handleSignUp = async (e) => {
+    e.preventDefault();
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
-    if(username && password) {
+    if (!email) setEmailEmpty(true);
+    if(username && password && email) {
       console.log('start sign up');
       try {
-        const signUpResult = await axios.post(BACKEND_URL + '/user/signUp', {username, password}, {withCredentials: true});
+        const signUpResult = await axios.post(BACKEND_URL + '/user/signUp', {username, password, email}, {withCredentials: true});
         console.log(signUpResult);
         navigate('/quizform');
       } catch (err) {console.log('LoginForm fetch /signUp: Error: ', err)}
@@ -46,23 +51,34 @@ const LogInForm = () => {
   const handleGuest = () => {navigate('/quizform')};
 
   return (
-    <Flex width="full" align="center" justifyContent="center" p={8}>
-      <Box p={8} maxWidth="700px" borderWidth={1} borderRadius={8} boxShadow="lg"> {/*width='31rem' borderWidth='1px' borderRadius='lg' overflow='hidden' */}
+    <Flex width="100%" align="center" justifyContent="center" p={8} height="100vh">
+      <Box p={8} maxWidth="700px" borderWidth={1} borderRadius={8} boxShadow="lg"> 
         <Box textAlign="center">
           <Heading color='teal.300'>Login</Heading>
         </Box>
         <Box my={4} textAlign="left" width='30rem'>
           <form>
             <FormControl isRequired isInvalid={isUsernameEmpty}>
-              <FormLabel color='teal.300'>Username or Email</FormLabel>
+              <FormLabel color='teal.300'>Username</FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents='none'>
+                  <EmailIcon color='teal.300' />
+                </InputLeftElement>
+                <Input color='teal.400' focusBorderColor='teal.300' type="text" placeholder="username"
+                onChange={e => setUsername(e.currentTarget.value)} onFocus={() => setUsernameEmpty(false)} />
+              </InputGroup>
+              <FormErrorMessage>Username is required.</FormErrorMessage>
+            </FormControl>
+            <FormControl mt={6} isInvalid={isEmailEmpty}>
+              <FormLabel color='teal.300'>Email (Required for Sign up)</FormLabel>
               <InputGroup>
                 <InputLeftElement pointerEvents='none'>
                   <EmailIcon color='teal.300' />
                 </InputLeftElement>
                 <Input color='teal.400' focusBorderColor='teal.300' type="email" placeholder="test@test.com"
-                onChange={e => setUsername(e.currentTarget.value)} onFocus={() => setUsernameEmpty(false)} />
+                onChange={e => setEmail(e.currentTarget.value)} onFocus={() => setEmailEmpty(false)} />
               </InputGroup>
-              <FormErrorMessage>Username is required.</FormErrorMessage>
+              <FormErrorMessage>Email is required.</FormErrorMessage>
             </FormControl>
             <FormControl mt={6} isRequired isInvalid={isPasswordEmpty}>
               <FormLabel color='teal.300'>Password</FormLabel>

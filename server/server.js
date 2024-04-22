@@ -3,15 +3,12 @@ require("dotenv").config();
 const express = require('express');
 const path = require('node:path');
 const cookieParser = require('cookie-parser');
-const mongoose = require('mongoose');
 const cors = require("cors");
 const userRoute = require('./routes/userRoute');
 const quizRoute = require('./routes/quizRoute');
 
 const PORT = 3000;
 const app = express();
-const mongoURI = process.env.MONGO_URI;
-mongoose.connect(mongoURI);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));

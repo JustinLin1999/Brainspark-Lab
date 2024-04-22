@@ -7,14 +7,14 @@ router.post(
   '/signUp',
   userController.createUser,
   tokenController.issueToken,
-  (req, res) => res.status(200).json(res.locals.newAccount)
+  (req, res) => res.status(200).json(res.locals.newUser)
 )
 
 router.post(
   '/signIn',
   userController.verifyUser,
   tokenController.issueToken,
-  (req, res) => res.status(200).json(res.locals.account)
+  (req, res) => res.status(200).json(res.locals.loggedInUser)
 )
 
 module.exports = router;

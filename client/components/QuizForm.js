@@ -55,7 +55,7 @@ const QuizForm = () => {
   };
 
   return (
-    <Flex width="full" align="center" justifyContent="center" p={8}>
+    <Flex width="full" align="center" justifyContent="center" p={8} h="100vh">
       <Box p={8} maxWidth="700px" borderWidth={1} borderRadius={8} boxShadow="lg"> {/*width='31rem' borderWidth='1px' borderRadius='lg' overflow='hidden' */}
         <Flex width="full" align="center" justifyContent="center">
           <Box textAlign="center" w='80%' pl='18%'>
