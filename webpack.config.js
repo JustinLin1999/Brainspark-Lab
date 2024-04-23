@@ -7,11 +7,12 @@ module.exports = {
   entry: './client/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
+    publicPath: '/',
     filename: 'bundle.js'
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, './client/index.html'),
+      template: './client/index.html',
     })
   ],
   module: {

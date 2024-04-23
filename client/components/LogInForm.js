@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import {
-  Flex, Box, Heading, FormControl, FormLabel, FormErrorMessage, Input, InputGroup, InputLeftElement, InputRightElement, Button, Spacer
+  Flex, Box, Heading, FormControl, FormLabel, FormErrorMessage, Button, Spacer, Icon,
+  Input, InputGroup, InputLeftElement, InputRightElement, useToast
 } from '@chakra-ui/react';
 import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { FaUser } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -16,6 +18,8 @@ const LogInForm = () => {
   const [isEmailEmpty, setEmailEmpty] = useState(false);
   const [isPasswordEmpty, setPasswordEmpty] = useState(false);
   const navigate = useNavigate();
+  const toast = useToast();
+
   const handleView = () => setShow(!show);
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,12 +30,30 @@ const LogInForm = () => {
       try {
         const loginResult = await axios.post(BACKEND_URL + '/user/signIn', {username, password, email}, {withCredentials: true});
         console.log(loginResult);
-        if (loginResult.result === 'Not Found') {
-          navigate('/login');
+        navigate('/quizform');
+      } catch (err) {
+        console.log('LoginForm fetch /signIn: Error: ', err);
+        if (err.response.data.err === 'User not found.' || err.response.data.err === 'Invalid credentials.') {
+          toast.closeAll();
+          toast({
+            position: 'top',
+            title: 'Login Failed',
+            description: (<p>Username or Password incorrect.<br />You can sign up or try again later.</p>),
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
         } else {
-          navigate('/quizform');
+          toast({
+            position: 'top',
+            title: 'Error Occurred',
+            description: "Something went wrong when signing in.",
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
         }
-      } catch (err) {console.log('LoginForm fetch /signIn: Error: ', err)}
+      }
     }
   };
   const handleSignUp = async (e) => {
@@ -45,7 +67,29 @@ const LogInForm = () => {
         const signUpResult = await axios.post(BACKEND_URL + '/user/signUp', {username, password, email}, {withCredentials: true});
         console.log(signUpResult);
         navigate('/quizform');
-      } catch (err) {console.log('LoginForm fetch /signUp: Error: ', err)}
+      } catch (err) {
+        console.log('LoginForm fetch /signUp: Error: ', err);
+        if (err.response.data.err === 'username already exists in database') {
+          toast.closeAll();
+          toast({
+            position: 'top',
+            title: 'Error Occurred',
+            description: "Please choose a different username.",
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            position: 'top',
+            title: 'Error Occurred',
+            description: "Something went wrong when signing in.",
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      }
     }
   };
   const handleGuest = () => {navigate('/quizform')};
@@ -62,7 +106,7 @@ const LogInForm = () => {
               <FormLabel color='teal.300'>Username</FormLabel>
               <InputGroup>
                 <InputLeftElement pointerEvents='none'>
-                  <EmailIcon color='teal.300' />
+                  <Icon as={FaUser} color='teal.300' />
                 </InputLeftElement>
                 <Input color='teal.400' focusBorderColor='teal.300' type="text" placeholder="username"
                 onChange={e => setUsername(e.currentTarget.value)} onFocus={() => setUsernameEmpty(false)} />
@@ -89,7 +133,7 @@ const LogInForm = () => {
                 <Input color='teal.400' focusBorderColor='teal.300' type={show ? 'text' : 'password'} placeholder="*******"
                 onChange={e => setPassword(e.currentTarget.value)} onFocus={() => setPasswordEmpty(false)} />
                 <InputRightElement width='4.5rem'>
-                  <Button _hover={{ bg: 'gray.100' }} bg='white' color='teal.300' h='1.75rem' size='sm' width='3.75rem' onClick={handleView}>
+                  <Button _hover={{ bg: 'gray.100' }} bg='white' color='teal.300' h='1.75rem' size='md' width='3.75rem' onClick={handleView}>
                     {show ? <ViewIcon /> : <ViewOffIcon />}
                   </Button>
                 </InputRightElement>

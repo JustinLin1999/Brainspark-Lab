@@ -8,10 +8,10 @@
   "license": "ISC",
   "scripts": {
     "clean": "rm dist/bundle.js",
-    "build": "webpack --mode production",
+    "build": "cross-env NODE_ENV=production webpack",
     "start": "cross-env NODE_ENV=production node server/server.js",
     "dev": "concurrently \"cross-env NODE_ENV=development webpack serve --open\" \"cross-env NODE_ENV=development nodemon server/server.js\"",
-    "prod": "concurrently \"cross-env NODE_ENV=production webpack\" \"cross-env NODE_ENV=production node server/server.js\""
+    "prod": "concurrently \"npm run build\" \"npm start\""
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",

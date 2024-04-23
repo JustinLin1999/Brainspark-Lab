@@ -20,7 +20,7 @@ app.get('/bundle.js', (req, res) =>{
   return res.status(200).sendFile(path.join(__dirname, './../dist/bundle.js'));
 });
 app.get('/*',(req,res)=> {
-  console.log('reuest recieved');
+  console.log('request recieved');
   return res.status(200).sendFile(path.join(__dirname, './../dist/index.html'));
 });
 
