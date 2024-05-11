@@ -1,0 +1,44 @@
+{
+  "name": "brainspark-lab",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Justin",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "prod": "set \"NODE_ENV=production\" && node server/server.js",
+    "server": "nodemon server/server.js",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^2.1.1",
+    "@chakra-ui/next-js": "^2.2.0",
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@reduxjs/toolkit": "^2.2.4",
+    "axios": "^1.6.8",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "framer-motion": "^11.1.9",
+    "jsonwebtoken": "^9.0.2",
+    "next": "14.2.3",
+    "pg": "^8.11.5",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-icons": "^5.2.1",
+    "react-redux": "^9.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "nodemon": "^3.1.0",
+    "typescript": "^5"
+  }
+}
