@@ -22,7 +22,7 @@ const Quiz = () => {
   // const changeQuiz = (index) => setQuiz(data[index]);
   // const {questionNumber, category, difficulty, questionType, data} = quizExample;
   const [quizIndex, setQuizIndex] = useState(0);
-  const [quiz, setQuiz] = useState(data[0]);
+  const [quiz, setQuiz] = useState(data[0] || {});
   const [buttonBorderColor, setButtonBorderColor] = useState(['0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset']);
   const shuffleArray = (array: string[]) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -31,7 +31,7 @@ const Quiz = () => {
     }
     return array;
   }
-  const [options, setOptions] = useState(shuffleArray([quiz.correct_answer].concat(quiz.incorrect_answers)));
+  const [options, setOptions] = useState(shuffleArray(quiz.correct_answer ? [quiz.correct_answer].concat(quiz.incorrect_answers) : []));
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [correctCount, setCorrectCount] = useState(0);

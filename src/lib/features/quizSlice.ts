@@ -16,7 +16,7 @@ const initialState: QuizState = {
     category: '',
     difficulty: '',
     questionType: '',
-    data: {}
+    data: []
   },
 }
 
