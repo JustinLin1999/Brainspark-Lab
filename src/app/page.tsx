@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import {
   Flex, Box, Heading, FormControl, FormLabel, FormErrorMessage, Button, Spacer, Icon,
@@ -5,11 +6,12 @@ import {
 } from '@chakra-ui/react';
 import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { FaUser } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { useAppSelector } from '@/lib/hooks';
 
 const LogInForm = () => {
-  const BACKEND_URL = 'http://localhost:3000';
+  const BACKEND_URL = 'http://localhost:3001';
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,11 +19,13 @@ const LogInForm = () => {
   const [isUsernameEmpty, setUsernameEmpty] = useState(false);
   const [isEmailEmpty, setEmailEmpty] = useState(false);
   const [isPasswordEmpty, setPasswordEmpty] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
   const toast = useToast();
 
+  const test = useAppSelector(state => state.quiz); 
+
   const handleView = () => setShow(!show);
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
@@ -30,8 +34,8 @@ const LogInForm = () => {
       try {
         const loginResult = await axios.post(BACKEND_URL + '/user/signIn', {username, password, email}, {withCredentials: true});
         console.log(loginResult);
-        navigate('/quizform');
-      } catch (err) {
+        router.push('/quizform');
+      } catch (err: any) {
         console.log('LoginForm fetch /signIn: Error: ', err);
         if (err.response.data.err === 'User not found.' || err.response.data.err === 'Invalid credentials.') {
           toast.closeAll();
@@ -56,8 +60,9 @@ const LogInForm = () => {
       }
     }
   };
-  const handleSignUp = async (e) => {
+  const handleSignUp = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
+    console.log(test)
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
     if (!email) setEmailEmpty(true);
@@ -66,8 +71,8 @@ const LogInForm = () => {
       try {
         const signUpResult = await axios.post(BACKEND_URL + '/user/signUp', {username, password, email}, {withCredentials: true});
         console.log(signUpResult);
-        navigate('/quizform');
-      } catch (err) {
+        router.push('/quizform');
+      } catch (err: any) {
         console.log('LoginForm fetch /signUp: Error: ', err);
         if (err.response.data.err === 'username already exists in database') {
           toast.closeAll();
@@ -92,7 +97,7 @@ const LogInForm = () => {
       }
     }
   };
-  const handleGuest = () => {navigate('/quizform')};
+  const handleGuest = () => {router.push('/quizform')};
 
   return (
     <Flex width="100%" align="center" justifyContent="center" p={8} height="100vh">

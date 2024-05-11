@@ -1,50 +1,52 @@
 require("dotenv").config();
 
 const express = require('express');
+const next = require("next");
 const path = require('node:path');
 const cookieParser = require('cookie-parser');
 const cors = require("cors");
 const userRoute = require('./routes/userRoute');
 const quizRoute = require('./routes/quizRoute');
 
-const PORT = 3000;
-const app = express();
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-app.use(cors({ origin: true, credentials: true }))
+const PORT = 3001;
+const dev = process.env.NODE_ENV !== "production";
+const app = next({ dev });
+const handle = app.getRequestHandler();
+app.prepare().then(() => {
+  const server = express();
+  const corsOptions = {
+    origin: "http://localhost:3000",
+    credentials: true,
+  };
+  server.use(cors(corsOptions));
+  server.use(cookieParser());
+  server.use(express.json());
+  server.use(express.urlencoded({ extended: true }));
 
-console.log(app.settings.env);
-app.get('/bundle.js', (req, res) =>{
-  console.log('bundle request');
-  return res.status(200).sendFile(path.join(__dirname, './../dist/bundle.js'));
+  console.log(server.settings.env);
+
+  // server side routing
+  server.use('/user', userRoute);
+  server.use('/quiz', quizRoute);
+
+  // testing connection
+  server.get('/testing', (req, res) => res.status(200).send('connected'));
+
+  server.get('*', (req,res) => {return handle(req, res);});
+
+  // Global error handler
+  server.use((err, req, res, next) => {
+    const defaultObj = {
+      log:'Express error handler caught unknown middleware error',
+      status: 500,
+      message: {err: 'An error occurred'}
+    }
+    const errObj = Object.assign({}, defaultObj, err);
+    console.log(errObj.log);
+    return res.status(errObj.status).json(errObj.message);
+  });
+
+  server.listen(PORT, () => {
+    console.log(`🚀 Server launching on http://localhost:${PORT}`);
+  });
 });
-app.get('/*',(req,res)=> {
-  console.log('request recieved');
-  return res.status(200).sendFile(path.join(__dirname, './../dist/index.html'));
-});
-
-// server side routing
-app.use('/user', userRoute);
-app.use('/quiz', quizRoute);
-
-// testing connection
-app.get('/testing', (req, res) => res.status(200).send('connected'));
-
-app.use('*', (req,res) => res.status(404).send('Not Found'));
-
-// Global error handler
-app.use((err, req, res, next) => {
-  const defaultObj = {
-    log:'Express error handler caught unknown middleware error',
-    status: 500,
-    message: {err: 'An error occurred'}
-  }
-  const errObj = Object.assign({}, defaultObj, err);
-  console.log(errObj.log);
-  return res.status(errObj.status).json(errObj.message);
-});
-
-//listens on port 3000 -> http://localhost:3000/
-app.listen(PORT, ()=>{ console.log(`Listening on port ${PORT}...`);});
-

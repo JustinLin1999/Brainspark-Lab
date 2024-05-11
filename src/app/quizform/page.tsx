@@ -1,6 +1,7 @@
+'use client';
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { replaceQuiz } from '../reducers/quizSlice';
+import { useAppDispatch } from '@/lib/hooks'; 
+import { replaceQuiz } from '@/lib/features/quizSlice';
 import {
   Flex, Box, Stack, Heading, FormControl, FormLabel, FormErrorMessage, Input, InputGroup, InputLeftElement, InputRightElement, Button, Icon, IconButton,
   NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper,
@@ -13,8 +14,8 @@ import { RiNumbersFill } from "react-icons/ri";
 import { BiSolidCategoryAlt  } from "react-icons/bi";
 import { PiGaugeBold } from "react-icons/pi";
 import { BsUiRadios } from "react-icons/bs";
-import { useNavigate } from 'react-router-dom';
 import { MdAccountBox } from "react-icons/md";
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 const QuizForm = () => {
@@ -23,14 +24,14 @@ const QuizForm = () => {
   const [difficulty, setDifficulty] = useState('any');
   const [questionTypes, setQuestionTypes] = useState([true, false, false]);
   const questionType = ['any', 'multiple', 'boolean'].filter((el, i) => questionTypes[i])[0];
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [recentQuestionNumber, setRecentQuestionNumber] = useState(10);
   const [recentCategory, setRecentCategory] = useState('any');
   const [recentDifficulty, setRecentDifficulty] = useState('any');
   const [recentQuestionType, setRecentQuestionType] = useState('any');
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const handleStartQuiz = async () => {
     let apiString = 'https://opentdb.com/api.php?';
@@ -49,7 +50,7 @@ const QuizForm = () => {
       console.log(fetchQuizResult)
       if (fetchQuizResult.data.response_code === 0) {
         dispatch(replaceQuiz({questionNumber, category, difficulty, questionType, data: fetchQuizResult.data.results}));
-        navigate('/quiz');
+        router.push('/quiz');
       }
     } catch (err) {console.log('QuizForm fetch api Error: ', err)}
   };
@@ -63,9 +64,10 @@ const QuizForm = () => {
           </Box>
           {/* testing */}
           <Box textAlign="right" pl='10%'>
-            <Popover w='400px'>
+            <Popover>
               <PopoverTrigger>
                 <IconButton
+                  aria-label='Recent Result'
                   icon={<MdAccountBox size={30}/>}
                   color='teal.300'
                   variant="ghost"
@@ -115,7 +117,7 @@ const QuizForm = () => {
                   </InputLeftElement>
                   <Input width='0rem' pr='0' />
                 </InputGroup>
-                <NumberInput focusBorderColor='teal.300' maxW='200px' mr='1.5rem' min={1} max={50} value={questionNumber} onChange={(questionNumber) => setQuestionNumber(Math.round(questionNumber))} allowMouseWheel>
+                <NumberInput focusBorderColor='teal.300' maxW='200px' mr='1.5rem' min={1} max={50} value={questionNumber} onChange={(questionNumber) => setQuestionNumber(Math.round(Number(questionNumber)))} allowMouseWheel>
                   <NumberInputField />
                   <NumberInputStepper>
                     <NumberIncrementStepper>
@@ -207,7 +209,7 @@ const QuizForm = () => {
                   <Icon boxSize={5} color='teal.300' as={BsUiRadios} />
                 </InputLeftElement>
                 <Input width='0rem' pr='0' />
-                <Box spacing={10} borderWidth='1px' borderRadius='md' p={1.5} width='100%'>
+                <Box borderWidth='1px' borderRadius='md' p={1.5} width='100%'>
                   <Stack direction='row' spacing={10} ml={3} >
                     <Checkbox colorScheme='teal' isChecked={questionTypes[0]} onChange={() => setQuestionTypes([true, false, false])}>
                       Any

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+'use client';
+import React, { useRef, useState } from 'react';
+import { useAppSelector } from '@/lib/hooks';
 import {
   Flex, Spacer, Box, Heading, Stack, Center, Badge, Button, ButtonGroup, IconButton, useDisclosure,
   Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverFooter, PopoverArrow, PopoverCloseButton,
@@ -10,32 +11,32 @@ import {
 } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { BiSolidLeftArrow, BiSolidRightArrow  } from "react-icons/bi";
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 const Quiz = () => {
-  const quizObject = useSelector((state) => state.quiz.quizObject);
-  const BACKEND_URL = 'http://localhost:3000';
-  const navigate = new useNavigate();
+  const quizObject = useAppSelector((state) => state.quiz.quizObject);
+  const BACKEND_URL = 'http://localhost:3001';
+  const router = useRouter();
   const quizExample = {questionNumber: 5, category: 'geography', difficulty: 'easy', questionType: 'any', data:[{"type":"multiple","difficulty":"easy","category":"Geography","question":"Which Russian oblast forms a border with Poland?","correct_answer":"Kaliningrad","incorrect_answers":["Samara","Nizhny Novgorod","Omsk"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Vatican City is a country.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What is the capital of Indonesia?","correct_answer":"Jakarta","incorrect_answers":["Bandung","Medan","Palembang"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Alaska is the largest state in the United States.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What country has a horizontal bicolor red and white flag?","correct_answer":"Monaco","incorrect_answers":["Bahrain","Malta","Liechenstein"]}]};
   const {questionNumber, category, difficulty, questionType, data} = quizObject;
   // const changeQuiz = (index) => setQuiz(data[index]);
   // const {questionNumber, category, difficulty, questionType, data} = quizExample;
   const [quizIndex, setQuizIndex] = useState(0);
-  const [quiz, setQuiz] = useState(data[0]);
+  const [quiz, setQuiz] = useState(data[0] || {});
   const [buttonBorderColor, setButtonBorderColor] = useState(['0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset']);
-  const shuffleArray = array => {
+  const shuffleArray = (array: string[]) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
   }
-  const [options, setOptions] = useState(shuffleArray([quiz.correct_answer].concat(quiz.incorrect_answers)));
+  const [options, setOptions] = useState(shuffleArray(quiz.correct_answer ? [quiz.correct_answer].concat(quiz.incorrect_answers) : []));
   const [currentAnswer, setCurrentAnswer] = useState('');
-  const [userAnswers, setUserAnswers] = useState([]);
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [correctCount, setCorrectCount] = useState(0);
 
-  const handleChoice = (index) => {
+  const handleChoice = (index: number) => {
     const newButtonBorder = [];
     for (let i=0; i<4; i++) {
       if (i === index) newButtonBorder.push('0px 0px 0px 8px #DD6B20 inset');
@@ -95,13 +96,14 @@ const Quiz = () => {
   }
   //testing
   const { isOpen: answerEmptyIsOpen, onOpen: answerEmptyOpen, onClose: answerEmptyClose } = useDisclosure();
-  const cancelAnswerEmptyRef = React.useRef();
+  // const cancelAnswerEmptyRef = useRef();
+  const cancelAnswerEmptyRef = useRef<null | HTMLButtonElement>(null);
 
   const { isOpen: submitAnswer, onOpen: submitAnswerOpen, onClose: submitAnswerClose } = useDisclosure();
-  const cancelSubmitAnswerRef = React.useRef();
+  const cancelSubmitAnswerRef = useRef<null | HTMLButtonElement>(null);
 
   const { isOpen: checkAnswer, onOpen: checkAnswerOpen, onClose: checkAnswerClose } = useDisclosure();
-  const cancelCheckAnswerRef = React.useRef();
+  const cancelCheckAnswerRef = useRef<null | HTMLButtonElement>(null);
 
   return (
     <Flex width="full" align="center" justifyContent="center" p={8} h="100vh">
@@ -111,10 +113,11 @@ const Quiz = () => {
             <Heading color='orange.500'>Quiz {quizIndex+1}/{questionNumber}</Heading>
           </Box>
           <Box textAlign="right" pl='10%'>
-            <Popover w='400px'>
+            <Popover>
               <PopoverTrigger>
                 <IconButton
-                  icon={<InfoIcon size={36}/>}
+                  aria-label="Info"
+                  icon={<InfoIcon />}
                   color='orange.500'
                   variant="ghost"
                 />
@@ -152,7 +155,7 @@ const Quiz = () => {
           </Box>
         </Flex>
         <Progress my={8} colorScheme='orange' value={(quizIndex+1)*100/questionNumber} />
-        <Flex width='full' spacing={5} my={8} align="center" justifyContent="center">
+        <Flex width='full' my={8} align="center" justifyContent="center">
           <Badge w='25%' fontSize={14} textAlign='center' variant='solid' colorScheme='green'>{quiz.category}</Badge>
           <Spacer />
           <Badge w='25%' fontSize={14} textAlign='center' variant='solid' colorScheme='red'>{quiz.difficulty}</Badge>
@@ -184,8 +187,8 @@ const Quiz = () => {
           </Button>
         </Flex>
         <Flex width='full' my={8} align="center" justifyContent="center">
-          <IconButton borderRightRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidLeftArrow />} _active={{transform: 'scale(0.9)'}} />
-          <IconButton borderLeftRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidRightArrow />} _active={{transform: 'scale(0.9)'}} onClick={() => handleNextQuestion()} />
+          <IconButton aria-label='Previous Question' borderRightRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidLeftArrow />} _active={{transform: 'scale(0.9)'}} />
+          <IconButton aria-label='Next Question' borderLeftRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidRightArrow />} _active={{transform: 'scale(0.9)'}} onClick={() => handleNextQuestion()} />
         </Flex>
       </Box>
 
@@ -237,7 +240,7 @@ const Quiz = () => {
             That's a perfect score!
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={() => {navigate('/quizform')}}>
+            <Button colorScheme='blue' mr={3} onClick={() => {router.push('/quizform')}}>
               New Quiz
             </Button>
           </ModalFooter>
