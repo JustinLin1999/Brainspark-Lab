@@ -14,13 +14,12 @@ import { BiSolidLeftArrow, BiSolidRightArrow  } from "react-icons/bi";
 import { useRouter } from 'next/navigation';
 
 const Quiz = () => {
+  // const quizExample = {questionNumber: 5, category: 'geography', difficulty: 'easy', questionType: 'any', data:[{"type":"multiple","difficulty":"easy","category":"Geography","question":"Which Russian oblast forms a border with Poland?","correct_answer":"Kaliningrad","incorrect_answers":["Samara","Nizhny Novgorod","Omsk"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Vatican City is a country.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What is the capital of Indonesia?","correct_answer":"Jakarta","incorrect_answers":["Bandung","Medan","Palembang"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Alaska is the largest state in the United States.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What country has a horizontal bicolor red and white flag?","correct_answer":"Monaco","incorrect_answers":["Bahrain","Malta","Liechenstein"]}]};
   const quizObject = useAppSelector((state) => state.quiz.quizObject);
   const BACKEND_URL = 'http://localhost:3001';
   const router = useRouter();
-  const quizExample = {questionNumber: 5, category: 'geography', difficulty: 'easy', questionType: 'any', data:[{"type":"multiple","difficulty":"easy","category":"Geography","question":"Which Russian oblast forms a border with Poland?","correct_answer":"Kaliningrad","incorrect_answers":["Samara","Nizhny Novgorod","Omsk"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Vatican City is a country.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What is the capital of Indonesia?","correct_answer":"Jakarta","incorrect_answers":["Bandung","Medan","Palembang"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Alaska is the largest state in the United States.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What country has a horizontal bicolor red and white flag?","correct_answer":"Monaco","incorrect_answers":["Bahrain","Malta","Liechenstein"]}]};
   const {questionNumber, category, difficulty, questionType, data} = quizObject;
   // const changeQuiz = (index) => setQuiz(data[index]);
-  // const {questionNumber, category, difficulty, questionType, data} = quizExample;
   const [quizIndex, setQuizIndex] = useState(0);
   const [quiz, setQuiz] = useState(data[0] || {});
   const [buttonBorderColor, setButtonBorderColor] = useState(['0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset']);
@@ -33,7 +32,7 @@ const Quiz = () => {
   }
   const [options, setOptions] = useState(shuffleArray(quiz.correct_answer ? [quiz.correct_answer].concat(quiz.incorrect_answers) : []));
   const [currentAnswer, setCurrentAnswer] = useState('');
-  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [userAnswers, setUserAnswers] = useState<string[]>(Array(questionNumber).fill(''));
   const [correctCount, setCorrectCount] = useState(0);
 
   const handleChoice = (index: number) => {
@@ -48,6 +47,7 @@ const Quiz = () => {
 
   const handleNextQuestion = () => {
     console.log('handle next question');
+    console.log(userAnswers);
     if (currentAnswer) {
       console.log(currentAnswer);
       if (quizIndex < questionNumber) {
@@ -67,6 +67,19 @@ const Quiz = () => {
       console.log('empty answer');
       answerEmptyOpen();
     }
+  }
+
+  const handlePreviousQuestion = () => {
+    console.log('handle previous question');
+    console.log(userAnswers);
+    setQuizIndex(quizIndex-1);
+    setQuiz(data[quizIndex-1]);
+    const newOptions = shuffleArray([data[quizIndex-1].correct_answer].concat(data[quizIndex-1].incorrect_answers));
+    setOptions(newOptions);
+    for (let i = 0; i < newOptions.length; i++) {
+      if (newOptions[i] === userAnswers[quizIndex-1]) handleChoice(i);
+    }
+    setCurrentAnswer(userAnswers[quizIndex-1]);
   }
 
   const checkAnswers = () => {
@@ -187,7 +200,7 @@ const Quiz = () => {
           </Button>
         </Flex>
         <Flex width='full' my={8} align="center" justifyContent="center">
-          <IconButton aria-label='Previous Question' borderRightRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidLeftArrow />} _active={{transform: 'scale(0.9)'}} />
+          <IconButton aria-label='Previous Question' borderRightRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidLeftArrow />} _active={{transform: 'scale(0.9)'}} onClick={() => handlePreviousQuestion()} />
           <IconButton aria-label='Next Question' borderLeftRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidRightArrow />} _active={{transform: 'scale(0.9)'}} onClick={() => handleNextQuestion()} />
         </Flex>
       </Box>

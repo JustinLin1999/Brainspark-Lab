@@ -15,16 +15,14 @@ const LogInForm = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [show, setShow] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isUsernameEmpty, setUsernameEmpty] = useState(false);
   const [isEmailEmpty, setEmailEmpty] = useState(false);
   const [isPasswordEmpty, setPasswordEmpty] = useState(false);
   const router = useRouter();
   const toast = useToast();
 
-  const test = useAppSelector(state => state.quiz); 
-
-  const handleView = () => setShow(!show);
+  const handleView = () => setShowPassword(!showPassword);
   const handleLogin = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     if (!username) setUsernameEmpty(true);
@@ -62,7 +60,6 @@ const LogInForm = () => {
   };
   const handleSignUp = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    console.log(test)
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
     if (!email) setEmailEmpty(true);
@@ -135,11 +132,11 @@ const LogInForm = () => {
                 <InputLeftElement pointerEvents='none'>
                   <LockIcon color='teal.300' />
                 </InputLeftElement>
-                <Input color='teal.400' focusBorderColor='teal.300' type={show ? 'text' : 'password'} placeholder="*******"
+                <Input color='teal.400' focusBorderColor='teal.300' type={showPassword ? 'text' : 'password'} placeholder="*******"
                 onChange={e => setPassword(e.currentTarget.value)} onFocus={() => setPasswordEmpty(false)} />
                 <InputRightElement width='4.5rem'>
                   <Button _hover={{ bg: 'gray.100' }} bg='white' color='teal.300' h='1.75rem' size='md' width='3.75rem' onClick={handleView}>
-                    {show ? <ViewIcon /> : <ViewOffIcon />}
+                    {showPassword ? <ViewIcon /> : <ViewOffIcon />}
                   </Button>
                 </InputRightElement>
               </InputGroup>
