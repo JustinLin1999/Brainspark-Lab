@@ -6,8 +6,6 @@ import {
   Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverFooter, PopoverArrow, PopoverCloseButton,
   Tag, TagLabel, TagLeftIcon, TagRightIcon, TagCloseButton, Progress,
   Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer,
-  AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, AlertDialogCloseButton,
-  Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
 } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { BiSolidLeftArrow, BiSolidRightArrow  } from "react-icons/bi";
@@ -22,7 +20,6 @@ const Quiz = () => {
   const BACKEND_URL = 'http://localhost:3001';
   const router = useRouter();
   const {questionNumber, category, difficulty, questionType, data} = quizObject;
-  // const changeQuiz = (index) => setQuiz(data[index]);
   const [quizIndex, setQuizIndex] = useState(0);
   const [quiz, setQuiz] = useState(data[0] || {});
   const [buttonBorderColor, setButtonBorderColor] = useState(['0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset']);
@@ -182,7 +179,6 @@ const Quiz = () => {
           <Spacer />
           <Badge w='20%' fontSize={14} textAlign='center' variant='solid' colorScheme='purple'>{quiz.type}</Badge>
         </Flex>
-        {/*test.map(()=> (<Progress mt={4} colorScheme='orange' value={(quizIndex+1)*100/questionNumber} />))*/}
         <Center my={4} textAlign="left" width='full' bg='orange.500' py={3} pl={3.5} pr={3.5} borderRadius={10}>
           <Box textAlign="left" w='30rem' bg='white' p={2} borderRadius={6} h='8rem'>
             <b>{quiz.question}</b>
