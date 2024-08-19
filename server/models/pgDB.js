@@ -1,8 +1,8 @@
+require("dotenv").config({ path: './.env.local' });
 const pg = require('pg');
 const { Pool } = pg;
 
 const PG_URI = process.env.PG_URI;
-console.log(PG_URI);
 
 // create a new pool here using the connection string above
 const pool = new Pool({
