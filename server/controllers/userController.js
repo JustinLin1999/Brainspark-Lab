@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const pgDB = require('../models/userModel.js');
+const pgDB = require('../models/pgDB.js');
 const SALT_WORK_FACTOR = 10;
 
 userController = {};

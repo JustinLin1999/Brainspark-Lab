@@ -1,4 +1,4 @@
-const pgDB = require('../models/userModel.js');
+const pgDB = require('../models/pgDB.js');
 
 quizController = {};
 

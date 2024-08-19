@@ -6,21 +6,20 @@ import {
   Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverFooter, PopoverArrow, PopoverCloseButton,
   Tag, TagLabel, TagLeftIcon, TagRightIcon, TagCloseButton, Progress,
   Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer,
-  AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, AlertDialogCloseButton,
-  Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
 } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { BiSolidLeftArrow, BiSolidRightArrow  } from "react-icons/bi";
 import { useRouter } from 'next/navigation';
+import EmptyAnswerAlert from './emptyAnswerAlert';
+import SubmitAnswerAlert from './submitAnswerAlert';
+import AnswerResultModal from './answerResultModal';
 
 const Quiz = () => {
+  // const quizExample = {questionNumber: 5, category: 'geography', difficulty: 'easy', questionType: 'any', data:[{"type":"multiple","difficulty":"easy","category":"Geography","question":"Which Russian oblast forms a border with Poland?","correct_answer":"Kaliningrad","incorrect_answers":["Samara","Nizhny Novgorod","Omsk"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Vatican City is a country.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What is the capital of Indonesia?","correct_answer":"Jakarta","incorrect_answers":["Bandung","Medan","Palembang"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Alaska is the largest state in the United States.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What country has a horizontal bicolor red and white flag?","correct_answer":"Monaco","incorrect_answers":["Bahrain","Malta","Liechenstein"]}]};
   const quizObject = useAppSelector((state) => state.quiz.quizObject);
   const BACKEND_URL = 'http://localhost:3001';
   const router = useRouter();
-  const quizExample = {questionNumber: 5, category: 'geography', difficulty: 'easy', questionType: 'any', data:[{"type":"multiple","difficulty":"easy","category":"Geography","question":"Which Russian oblast forms a border with Poland?","correct_answer":"Kaliningrad","incorrect_answers":["Samara","Nizhny Novgorod","Omsk"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Vatican City is a country.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What is the capital of Indonesia?","correct_answer":"Jakarta","incorrect_answers":["Bandung","Medan","Palembang"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Alaska is the largest state in the United States.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What country has a horizontal bicolor red and white flag?","correct_answer":"Monaco","incorrect_answers":["Bahrain","Malta","Liechenstein"]}]};
   const {questionNumber, category, difficulty, questionType, data} = quizObject;
-  // const changeQuiz = (index) => setQuiz(data[index]);
-  // const {questionNumber, category, difficulty, questionType, data} = quizExample;
   const [quizIndex, setQuizIndex] = useState(0);
   const [quiz, setQuiz] = useState(data[0] || {});
   const [buttonBorderColor, setButtonBorderColor] = useState(['0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset']);
@@ -33,40 +32,60 @@ const Quiz = () => {
   }
   const [options, setOptions] = useState(shuffleArray(quiz.correct_answer ? [quiz.correct_answer].concat(quiz.incorrect_answers) : []));
   const [currentAnswer, setCurrentAnswer] = useState('');
-  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [userAnswers, setUserAnswers] = useState<string[]>(Array(questionNumber).fill(''));
   const [correctCount, setCorrectCount] = useState(0);
+  const [previousBtnDisabled, setPreviousBtnDisabled] = useState(true);
 
-  const handleChoice = (index: number) => {
+  const handleSelectedChoice = (index: number) => {
     const newButtonBorder = [];
     for (let i=0; i<4; i++) {
       if (i === index) newButtonBorder.push('0px 0px 0px 8px #DD6B20 inset');
       else newButtonBorder.push('0px 0px 0px 0px #DD6B20 inset');
     }
     setButtonBorderColor(newButtonBorder);
+  }
+
+  const selectOption = (index: number) => {
+    handleSelectedChoice(index);
     setCurrentAnswer(options[index]);
+    setUserAnswers(userAnswers.toSpliced(quizIndex, 1, options[index]));
   }
 
   const handleNextQuestion = () => {
     console.log('handle next question');
+    console.log(userAnswers);
+    setPreviousBtnDisabled(false);
     if (currentAnswer) {
       console.log(currentAnswer);
-      if (quizIndex < questionNumber) {
-        setUserAnswers(userAnswers.toSpliced(quizIndex, 1, currentAnswer));
-        console.log(userAnswers);
-        setCurrentAnswer('');
-      }
-      if (quizIndex+1 < questionNumber) {
+      setCurrentAnswer(userAnswers[quizIndex+1] || '');
+      if (quizIndex + 1 < questionNumber) {
         setQuizIndex(quizIndex+1);
         setQuiz(data[quizIndex+1]);
         setButtonBorderColor(['0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset']);
-        setOptions(shuffleArray([data[quizIndex+1].correct_answer].concat(data[quizIndex+1].incorrect_answers)));
-      } else {
-        submitAnswerOpen();
-      }
+        const newOptions = shuffleArray([data[quizIndex+1].correct_answer].concat(data[quizIndex+1].incorrect_answers));
+        setOptions(newOptions);
+        for (let i = 0; i < newOptions.length; i++) {
+          if (newOptions[i] === userAnswers[quizIndex+1]) handleSelectedChoice(i);
+        }
+      } else submitAnswerOpen();
     } else {
       console.log('empty answer');
       answerEmptyOpen();
     }
+  }
+
+  const handlePreviousQuestion = () => {
+    console.log('handle previous question');
+    console.log(userAnswers);
+    setQuizIndex(quizIndex-1);
+    setQuiz(data[quizIndex-1]);
+    const newOptions = shuffleArray([data[quizIndex-1].correct_answer].concat(data[quizIndex-1].incorrect_answers));
+    setOptions(newOptions);
+    for (let i = 0; i < newOptions.length; i++) {
+      if (newOptions[i] === userAnswers[quizIndex-1]) handleSelectedChoice(i);
+    }
+    setCurrentAnswer(userAnswers[quizIndex-1]);
+    if (quizIndex === 1) setPreviousBtnDisabled(true);
   }
 
   const checkAnswers = () => {
@@ -94,20 +113,18 @@ const Quiz = () => {
     submitAnswerClose();
     checkAnswerOpen();
   }
-  //testing
+
   const { isOpen: answerEmptyIsOpen, onOpen: answerEmptyOpen, onClose: answerEmptyClose } = useDisclosure();
-  // const cancelAnswerEmptyRef = useRef();
   const cancelAnswerEmptyRef = useRef<null | HTMLButtonElement>(null);
 
-  const { isOpen: submitAnswer, onOpen: submitAnswerOpen, onClose: submitAnswerClose } = useDisclosure();
+  const { isOpen: submitAnswerIsOpen, onOpen: submitAnswerOpen, onClose: submitAnswerClose } = useDisclosure();
   const cancelSubmitAnswerRef = useRef<null | HTMLButtonElement>(null);
 
   const { isOpen: checkAnswer, onOpen: checkAnswerOpen, onClose: checkAnswerClose } = useDisclosure();
-  const cancelCheckAnswerRef = useRef<null | HTMLButtonElement>(null);
 
   return (
     <Flex width="full" align="center" justifyContent="center" p={8} h="100vh">
-      <Box p={8} maxWidth="700px" borderWidth={1} borderRadius={8} boxShadow="lg"> {/*width='31rem' borderWidth='1px' borderRadius='lg' overflow='hidden' */}
+      <Box p={8} width="510px" borderWidth={1} borderRadius={8} boxShadow="lg"> {/*width='31rem' borderWidth='1px' borderRadius='lg' overflow='hidden' */}
         <Flex width="full" align="center" justifyContent="center">
           <Box textAlign="center" w='80%' pl='18%'>
             <Heading color='orange.500'>Quiz {quizIndex+1}/{questionNumber}</Heading>
@@ -156,96 +173,49 @@ const Quiz = () => {
         </Flex>
         <Progress my={8} colorScheme='orange' value={(quizIndex+1)*100/questionNumber} />
         <Flex width='full' my={8} align="center" justifyContent="center">
-          <Badge w='25%' fontSize={14} textAlign='center' variant='solid' colorScheme='green'>{quiz.category}</Badge>
+          <Badge w='50%' fontSize={14} textAlign='center' variant='solid' colorScheme='green'>{quiz.category}</Badge>
           <Spacer />
-          <Badge w='25%' fontSize={14} textAlign='center' variant='solid' colorScheme='red'>{quiz.difficulty}</Badge>
+          <Badge w='20%' fontSize={14} textAlign='center' variant='solid' colorScheme='red'>{quiz.difficulty}</Badge>
           <Spacer />
-          <Badge w='25%' fontSize={14} textAlign='center' variant='solid' colorScheme='purple'>{quiz.type}</Badge>
+          <Badge w='20%' fontSize={14} textAlign='center' variant='solid' colorScheme='purple'>{quiz.type}</Badge>
         </Flex>
-        {/*test.map(()=> (<Progress mt={4} colorScheme='orange' value={(quizIndex+1)*100/questionNumber} />))*/}
-        <Center my={4} textAlign="left" width='30rem' bg='orange.500' py={3} pl={3.5} pr={3.5} borderRadius={10}>
+        <Center my={4} textAlign="left" width='full' bg='orange.500' py={3} pl={3.5} pr={3.5} borderRadius={10}>
           <Box textAlign="left" w='30rem' bg='white' p={2} borderRadius={6} h='8rem'>
             <b>{quiz.question}</b>
           </Box>
         </Center>
         <Flex width='full' my={8} align="center" justifyContent="center">
-          <Button height='48px' width='48.5%' fontSize={20} boxShadow={buttonBorderColor[0]} colorScheme='whatsapp' _active={{transform: 'scale(0.9)'}} onClick={() => handleChoice(0)}>
+          <Button height='48px' width='48.5%' fontSize={20} boxShadow={buttonBorderColor[0]} colorScheme='whatsapp' _active={{transform: 'scale(0.9)'}} onClick={() => selectOption(0)}>
             <b>{options[0]}</b>
           </Button>
           <Spacer />
-          <Button height='48px' width='48.5%' fontSize={20} boxShadow={buttonBorderColor[1]} colorScheme='twitter'_active={{transform: 'scale(0.9)'}} onClick={() => handleChoice(1)}>
+          <Button height='48px' width='48.5%' fontSize={20} boxShadow={buttonBorderColor[1]} colorScheme='twitter'_active={{transform: 'scale(0.9)'}} onClick={() => selectOption(1)}>
             <b>{options[1]}</b>
           </Button>
         </Flex>
         <Flex width='full' my={8} align="center" justifyContent="center">
-          <Button height='48px' width='48.5%' fontSize={20} boxShadow={buttonBorderColor[2]} colorScheme='purple' _active={{transform: 'scale(0.9)'}} onClick={() => handleChoice(2)}>
+          <Button height='48px' width='48.5%' fontSize={20} boxShadow={buttonBorderColor[2]} colorScheme='purple' _active={{transform: 'scale(0.9)'}} onClick={() => selectOption(2)}>
             <b>{options[2]}</b>
           </Button>
           <Spacer />
-          <Button height='48px' width='48.5%' fontSize={20} boxShadow={buttonBorderColor[3]} colorScheme='pink' _active={{transform: 'scale(0.9)'}} onClick={() => handleChoice(3)}>
+          <Button height='48px' width='48.5%' fontSize={20} boxShadow={buttonBorderColor[3]} colorScheme='pink' _active={{transform: 'scale(0.9)'}} onClick={() => selectOption(3)}>
             <b>{options[3]}</b>
           </Button>
         </Flex>
         <Flex width='full' my={8} align="center" justifyContent="center">
-          <IconButton aria-label='Previous Question' borderRightRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidLeftArrow />} _active={{transform: 'scale(0.9)'}} />
+          <IconButton isDisabled={previousBtnDisabled} aria-label='Previous Question' borderRightRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidLeftArrow />} _active={{transform: 'scale(0.9)'}} onClick={() => handlePreviousQuestion()} />
           <IconButton aria-label='Next Question' borderLeftRadius={0} height='48px' width='50%' fontSize={20} colorScheme='gray' icon={<BiSolidRightArrow />} _active={{transform: 'scale(0.9)'}} onClick={() => handleNextQuestion()} />
         </Flex>
       </Box>
 
       {/* Empty Answer Alert */}
-      <AlertDialog motionPreset='scale' leastDestructiveRef={cancelAnswerEmptyRef} onClose={answerEmptyClose} isOpen={answerEmptyIsOpen} isCentered >
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader>Empty Answer?</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>
-            Please select an answer to proceed.
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={cancelAnswerEmptyRef} onClick={answerEmptyClose}>
-              Got it!
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <EmptyAnswerAlert answerEmptyIsOpen={answerEmptyIsOpen} answerEmptyClose={answerEmptyClose} cancelAnswerEmptyRef={cancelAnswerEmptyRef}/>
 
       {/* Submit Answer Alert */}
-      <AlertDialog motionPreset='scale' leastDestructiveRef={cancelSubmitAnswerRef} onClose={submitAnswerClose} isOpen={submitAnswer} isCentered >
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader>Submit Answers?</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>
-            Double-check your answers, for once you submit, there's no turning back!
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={cancelSubmitAnswerRef} onClick={submitAnswerClose}>
-              Nah
-            </Button>
-            <Button colorScheme='green' ref={cancelAnswerEmptyRef} onClick={() => checkAnswers()} ml={3}>
-              Sure thing!
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <SubmitAnswerAlert submitAnswerIsOpen={submitAnswerIsOpen} submitAnswerClose={submitAnswerClose} cancelSubmitAnswerRef={cancelSubmitAnswerRef} checkAnswers={checkAnswers} />
 
       {/* Answer Result Modal */}
-      <Modal isOpen={checkAnswer} onClose={checkAnswerClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            You got {correctCount} out of {questionNumber} correct!
-            That's a perfect score!
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={() => {router.push('/quizform')}}>
-              New Quiz
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <AnswerResultModal checkAnswer={checkAnswer} checkAnswerClose={checkAnswerClose} router={router} questionNumber={questionNumber} correctCount={correctCount} />
 
     </Flex>
   );
