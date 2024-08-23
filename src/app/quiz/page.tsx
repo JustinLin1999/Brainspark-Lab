@@ -2,10 +2,11 @@
 import React, { useRef, useState } from 'react';
 import { useAppSelector } from '@/lib/hooks';
 import {
-  Flex, Spacer, Box, Heading, Stack, Center, Badge, Button, ButtonGroup, IconButton, useDisclosure,
+  Flex, Spacer, Box, Heading, Stack, Center, Badge, Button, ButtonGroup, IconButton, useDisclosure, Icon, StackDivider, Text, Skeleton, SkeletonText,
   Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverFooter, PopoverArrow, PopoverCloseButton,
   Tag, TagLabel, TagLeftIcon, TagRightIcon, TagCloseButton, Progress,
   Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer,
+  Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
 } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { BiSolidLeftArrow, BiSolidRightArrow  } from "react-icons/bi";
@@ -35,6 +36,11 @@ const Quiz = () => {
   const [userAnswers, setUserAnswers] = useState<string[]>(Array(questionNumber).fill(''));
   const [correctCount, setCorrectCount] = useState(0);
   const [previousBtnDisabled, setPreviousBtnDisabled] = useState(true);
+  const [geminiContentObj, setGeminiContentObj] = useState<{
+    correctAnswer: string,
+    incorrectAnswers: string[],
+  }>({correctAnswer: '', incorrectAnswers: ['', '', '', '']});
+  const [geminiContentSuccess, setGeminiContentSuccess] = useState(false);
 
   const handleSelectedChoice = (index: number) => {
     const newButtonBorder = [];
@@ -114,6 +120,40 @@ const Quiz = () => {
     checkAnswerOpen();
   }
 
+  const askGemini = () => {
+    setGeminiContentSuccess(false);
+    geminiModalOpen();
+    fetch(BACKEND_URL + '/gemini/quizInformation', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        quizObject: quiz
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        const responseArray = data.response.slice(0, data.response.indexOf('/n')).split('##').map((sentence: string) => sentence.trim() );
+        setGeminiContentObj({
+          correctAnswer: responseArray[0],
+          incorrectAnswers: responseArray.slice(1),
+        });
+        setGeminiContentSuccess(true);
+      })
+  }
+
+  const resetGeminiContent = () => {
+    setGeminiContentObj({ correctAnswer: '', incorrectAnswers: ['', '', '', ''] });
+  }
+
+  const handleGeminiModalClose = () => {
+    geminiModalClose();
+    resetGeminiContent();
+  }
+
   const { isOpen: answerEmptyIsOpen, onOpen: answerEmptyOpen, onClose: answerEmptyClose } = useDisclosure();
   const cancelAnswerEmptyRef = useRef<null | HTMLButtonElement>(null);
 
@@ -122,11 +162,68 @@ const Quiz = () => {
 
   const { isOpen: checkAnswer, onOpen: checkAnswerOpen, onClose: checkAnswerClose } = useDisclosure();
 
+  const { isOpen: geminiModalIsOpen, onOpen: geminiModalOpen, onClose: geminiModalClose } = useDisclosure();
+
   return (
     <Flex width="full" align="center" justifyContent="center" p={8} h="100vh">
       <Box p={8} width="510px" borderWidth={1} borderRadius={8} boxShadow="lg"> {/*width='31rem' borderWidth='1px' borderRadius='lg' overflow='hidden' */}
         <Flex width="full" align="center" justifyContent="center">
-          <Box textAlign="center" w='80%' pl='18%'>
+          <Box textAlign="left" pr='10%'>
+            <IconButton
+              icon={<img src="/geminiIcon.svg" alt="Gemini Icon" width={25}/>} 
+              variant={"ghost"}
+              aria-label="Gemini Icon Button"
+              onClick={askGemini}
+              isRound={true}
+              _active={{transform: 'scale(0.8)'}}
+            />
+            <Modal isOpen={geminiModalIsOpen} onClose={handleGeminiModalClose} isCentered size={"2xl"}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader><Heading size='lg'>Explanation from Gemini</Heading></ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Stack divider={<StackDivider />} spacing={3}>
+                    <Box>
+                      <Skeleton isLoaded={geminiContentSuccess}>
+                        <Heading size='md' textTransform='uppercase'>
+                          Correct Answer:{quiz.correct_answer}
+                        </Heading>
+                      </Skeleton>
+                      <SkeletonText pt={geminiContentSuccess ? '1' : '3'} noOfLines={2} spacing='4' skeletonHeight='3' isLoaded={geminiContentSuccess}>
+                        <Text>
+                          {geminiContentObj.correctAnswer}
+                        </Text>
+                      </SkeletonText>
+                    </Box>
+                    {quiz.incorrect_answers.map((incorrectAnswer: [string], i: number) => {
+                      return (
+                        <Box>
+                          <Skeleton isLoaded={geminiContentSuccess}>
+                            <Heading size='sm' textTransform='uppercase'>
+                              {incorrectAnswer}
+                            </Heading>
+                          </Skeleton>
+                          <SkeletonText pt={geminiContentSuccess ? '1' : '3'} noOfLines={2} spacing='3' skeletonHeight='3' isLoaded={geminiContentSuccess}>
+                            <Text>
+                              {geminiContentObj.incorrectAnswers[i]}
+                            </Text>
+                          </SkeletonText>
+                        </Box>
+                      )
+                    })}
+                  </Stack>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button colorScheme='blue' mr={3} onClick={handleGeminiModalClose}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          </Box>
+          <Box textAlign="center" w='80%'>
             <Heading color='orange.500'>Quiz {quizIndex+1}/{questionNumber}</Heading>
           </Box>
           <Box textAlign="right" pl='10%'>
@@ -134,9 +231,10 @@ const Quiz = () => {
               <PopoverTrigger>
                 <IconButton
                   aria-label="Info"
-                  icon={<InfoIcon />}
+                  icon={<InfoIcon boxSize={5} />}
                   color='orange.500'
                   variant="ghost"
+                  isRound={true}
                 />
               </PopoverTrigger>
               <PopoverContent textAlign="left">
