@@ -8,7 +8,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "prod": "set \"NODE_ENV=production\" && node server/server.js",
+    "prod": "cross-env NODE_ENV=production node server/server.js",
     "server": "nodemon server/server.js",
     "lint": "next lint"
   },
@@ -24,6 +24,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "framer-motion": "^11.1.9",

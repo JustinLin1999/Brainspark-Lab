@@ -22,7 +22,14 @@ const Quiz = () => {
   const router = useRouter();
   const {questionNumber, category, difficulty, questionType, data} = quizObject;
   const [quizIndex, setQuizIndex] = useState(0);
-  const [quiz, setQuiz] = useState(data[0] || {});
+  const [quiz, setQuiz] = useState(data[0] || {
+    type: '',
+    difficulty: '',
+    category: '',
+    question: '',
+    correct_answer: '',
+    incorrect_answers: []
+  });
   const [buttonBorderColor, setButtonBorderColor] = useState(['0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset']);
   const shuffleArray = (array: string[]) => {
     for (let i = array.length - 1; i > 0; i--) {
