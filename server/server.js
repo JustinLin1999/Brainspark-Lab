@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const cors = require("cors");
 const userRoute = require('./routes/userRoute');
 const quizRoute = require('./routes/quizRoute');
+const geminiRoute = require('./routes/geminiRoute');
 
 const PORT = 3001;
 const dev = process.env.NODE_ENV !== "production";
@@ -24,6 +25,9 @@ app.prepare().then(() => {
   server.use(express.urlencoded({ extended: true }));
 
   console.log(server.settings.env);
+
+  // gemini
+  server.use('/gemini', geminiRoute);
 
   // server side routing
   server.use('/user', userRoute);
