@@ -18,18 +18,27 @@ const LogInFormContent = () => {
   const router = useRouter();
   const toast = useToast();
 
+  // Handle click show/hide password
   const handleView = () => {setShowPassword(!showPassword)};
+
+  // Handle click login button
   const handleLogin = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
+
+    // Check inputs are not empty 
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
     if(username && password) {
       console.log('start sign in');
       try {
+
+        // Sign in process
         const loginResult = await axios.post(BACKEND_URL + '/user/signIn', {username, password, email}, {withCredentials: true});
         console.log(loginResult);
         router.push('/quizform');
-      } catch (err: any) {
+
+      } // Handle error in specific case
+        catch (err: any) {
         console.log('LoginForm fetch /signIn: Error: ', err);
         if (err.response.data.err === 'User not found.' || err.response.data.err === 'Invalid credentials.') {
           toast.closeAll();
@@ -54,18 +63,26 @@ const LogInFormContent = () => {
       }
     }
   };
+
+  // Handle click sign up button
   const handleSignUp = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
+
+    // Check inputs are not empty 
     if (!username) setUsernameEmpty(true);
     if (!password) setPasswordEmpty(true);
     if (!email) setEmailEmpty(true);
+
+    // Sign up process
     if(username && password && email) {
       console.log('start sign up');
       try {
         const signUpResult = await axios.post(BACKEND_URL + '/user/signUp', {username, password, email}, {withCredentials: true});
         console.log(signUpResult);
         router.push('/quizform');
-      } catch (err: any) {
+
+      } // Handle error in specific case
+        catch (err: any) {
         console.log('LoginForm fetch /signUp: Error: ', err);
         if (err.response.data.err === 'username already exists in database') {
           toast.closeAll();
@@ -90,19 +107,21 @@ const LogInFormContent = () => {
       }
     }
   };
+
+  // Handle click as guest
   const handleGuest = () => {router.push('/quizform')};
 
   return (
     <Box my={4} textAlign="left" width='30rem'>
       <form>
 
-        {/* Username */}
+        {/* Username Input*/}
         <Username setUsername={setUsername} isUsernameEmpty={isUsernameEmpty} setUsernameEmpty={setUsernameEmpty} />
 
-        {/* Email */}
+        {/* Email Input */}
         <Email setEmail={setEmail} isEmailEmpty={isEmailEmpty} setEmailEmpty={setEmailEmpty} />
 
-        {/* Password */}
+        {/* Password Input */}
         <Password setPassword={setPassword} isPasswordEmpty={isPasswordEmpty} setPasswordEmpty={setPasswordEmpty} showPassword={showPassword} handleView={handleView} />
 
         {/* Submit Button */}

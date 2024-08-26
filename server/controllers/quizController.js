@@ -2,6 +2,10 @@ const pgDB = require('../models/pgDB.js');
 
 quizController = {};
 
+
+/*
+ * Store Result in database
+ */
 quizController.storeResult = async (req, res, next) => {
   const { questionNumber, category, difficulty, questionType, dataArray, answerArray, correctCount } = req.body;
   const { userId } = res.locals;

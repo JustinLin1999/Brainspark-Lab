@@ -16,7 +16,9 @@ import SubmitAnswerAlert from './submitAnswerAlert';
 import AnswerResultModal from './answerResultModal';
 
 const Quiz = () => {
-  // const quizExample = {questionNumber: 5, category: 'geography', difficulty: 'easy', questionType: 'any', data:[{"type":"multiple","difficulty":"easy","category":"Geography","question":"Which Russian oblast forms a border with Poland?","correct_answer":"Kaliningrad","incorrect_answers":["Samara","Nizhny Novgorod","Omsk"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Vatican City is a country.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What is the capital of Indonesia?","correct_answer":"Jakarta","incorrect_answers":["Bandung","Medan","Palembang"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Alaska is the largest state in the United States.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What country has a horizontal bicolor red and white flag?","correct_answer":"Monaco","incorrect_answers":["Bahrain","Malta","Liechenstein"]}]};
+  /*  Quiz Example
+  const quizExample = {questionNumber: 5, category: 'geography', difficulty: 'easy', questionType: 'any', data:[{"type":"multiple","difficulty":"easy","category":"Geography","question":"Which Russian oblast forms a border with Poland?","correct_answer":"Kaliningrad","incorrect_answers":["Samara","Nizhny Novgorod","Omsk"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Vatican City is a country.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What is the capital of Indonesia?","correct_answer":"Jakarta","incorrect_answers":["Bandung","Medan","Palembang"]},{"type":"boolean","difficulty":"easy","category":"Geography","question":"Alaska is the largest state in the United States.","correct_answer":"True","incorrect_answers":["False"]},{"type":"multiple","difficulty":"easy","category":"Geography","question":"What country has a horizontal bicolor red and white flag?","correct_answer":"Monaco","incorrect_answers":["Bahrain","Malta","Liechenstein"]}]};
+  */
   const quizObject = useAppSelector((state) => state.quiz.quizObject);
   const BACKEND_URL = 'http://localhost:3001';
   const router = useRouter();
@@ -31,6 +33,8 @@ const Quiz = () => {
     incorrect_answers: []
   });
   const [buttonBorderColor, setButtonBorderColor] = useState(['0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset', '0px 0px 0px 0px #DD6B20 inset']);
+
+  // Shuffle options array
   const shuffleArray = (array: string[]) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -49,6 +53,7 @@ const Quiz = () => {
   }>({correctAnswer: '', incorrectAnswers: ['', '', '', '']});
   const [geminiContentSuccess, setGeminiContentSuccess] = useState(false);
 
+  // Handle clicked option
   const handleSelectedChoice = (index: number) => {
     const newButtonBorder = [];
     for (let i=0; i<4; i++) {
@@ -58,12 +63,14 @@ const Quiz = () => {
     setButtonBorderColor(newButtonBorder);
   }
 
+  // Handle select option process
   const selectOption = (index: number) => {
     handleSelectedChoice(index);
     setCurrentAnswer(options[index]);
     setUserAnswers(userAnswers.toSpliced(quizIndex, 1, options[index]));
   }
 
+  // Handle click next question button
   const handleNextQuestion = () => {
     console.log('handle next question');
     console.log(userAnswers);
@@ -87,6 +94,7 @@ const Quiz = () => {
     }
   }
 
+  // Handle click previous question button
   const handlePreviousQuestion = () => {
     console.log('handle previous question');
     console.log(userAnswers);
@@ -101,6 +109,7 @@ const Quiz = () => {
     if (quizIndex === 1) setPreviousBtnDisabled(true);
   }
 
+  // Check and store answers process
   const checkAnswers = () => {
     let counting = 0;
     for (const [index, currentAnswer] of userAnswers.entries()) {
@@ -127,10 +136,11 @@ const Quiz = () => {
     checkAnswerOpen();
   }
 
+  // Gemini generate explanation process
   const askGemini = () => {
     setGeminiContentSuccess(false);
     geminiModalOpen();
-    fetch(BACKEND_URL + '/gemini/quizInformation', {
+    fetch('/api/gemini/quizInformation', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -150,12 +160,13 @@ const Quiz = () => {
         });
         setGeminiContentSuccess(true);
       })
+      .catch(err => console.log('Quiz fetch /api/gemini/quizInformation: Error: ', err));
   }
 
-  const resetGeminiContent = () => {
-    setGeminiContentObj({ correctAnswer: '', incorrectAnswers: ['', '', '', ''] });
-  }
+  // Reset Gemini prompt variables
+  const resetGeminiContent = () => setGeminiContentObj({ correctAnswer: '', incorrectAnswers: ['', '', '', ''] });
 
+  // Handle Gemini modal close
   const handleGeminiModalClose = () => {
     geminiModalClose();
     resetGeminiContent();
@@ -173,7 +184,7 @@ const Quiz = () => {
 
   return (
     <Flex width="full" align="center" justifyContent="center" p={8} h="100vh">
-      <Box p={8} width="510px" borderWidth={1} borderRadius={8} boxShadow="lg"> {/*width='31rem' borderWidth='1px' borderRadius='lg' overflow='hidden' */}
+      <Box p={8} width="510px" borderWidth={1} borderRadius={8} boxShadow="lg">
         <Flex width="full" align="center" justifyContent="center">
           <Box textAlign="left" pr='10%'>
             <IconButton
@@ -324,44 +335,6 @@ const Quiz = () => {
 
     </Flex>
   );
-  /* <Flex >
-    <Box w='60%' textAlign='center'>
-      <Stack direction='column' >
-        <Tag w='100%' height='1.5rem' variant='outline' colorScheme='cyan'>
-          <TagLeftIcon boxSize='12px' as={RiNumbersFill} />
-          <TagLabel>Question Number</TagLabel>
-        </Tag>
-        <Tag w='100%' height='1.5rem' variant='outline' colorScheme='cyan'>
-          <TagLeftIcon boxSize='12px' as={BiSolidCategoryAlt} />
-          <TagLabel>Category</TagLabel>
-        </Tag>
-        <Tag w='100%' height='1.5rem' variant='outline' colorScheme='cyan'>
-          <TagLeftIcon boxSize='12px' as={PiGaugeBold} />
-          <TagLabel>Difficulty</TagLabel>
-        </Tag>
-        <Tag w='100%' height='1.5rem' variant='outline' colorScheme='cyan'>
-          <TagLeftIcon boxSize='12px' as={BsUiRadios} />
-          <TagLabel>Question Type</TagLabel>
-        </Tag>
-      </Stack>
-    </Box>
-    <Box w='40%' textAlign='center'>
-      <Stack direction='column' textAlign='center'>
-          <Tag ml='5%' w='95%' height='1.5rem' textAlign='center' variant='outline' colorScheme='facebook'>
-            <box w='100%' textAlign='center'>{questionNumber}</box>
-          </Tag>
-          <Tag ml='20%' w='80%' height='1.5rem' variant='outline' colorScheme='facebook'>
-            <TagLabel>{category.toUpperCase()}</TagLabel>
-          </Tag>
-          <Tag ml='20%' w='80%' height='1.5rem' variant='outline' colorScheme='facebook'>
-            <TagLabel>{difficulty}</TagLabel>
-          </Tag>
-          <Tag ml='20%' w='80%' height='1.5rem' variant='outline' colorScheme='facebook'>
-            <TagLabel>{questionType}</TagLabel>
-          </Tag>
-        </Stack>
-    </Box>
-  </Flex> */
 };
 
 export default Quiz;

@@ -27,7 +27,10 @@ const QuizForm = () => {
 
   const dispatch = useAppDispatch();
 
+  // Handle click start quiz
   const handleStartQuiz = async () => {
+
+    // Create api string
     let apiString = 'https://opentdb.com/api.php?';
     console.log(questionNumber);
     console.log(category);
@@ -39,6 +42,7 @@ const QuizForm = () => {
     apiString += questionTypes[1] ? '&type=multiple' : questionTypes[2] ? '&type=boolean' : '';
     console.log(apiString);
 
+    // Fetch quiz and update quiz state
     try {
       const fetchQuizResult = await axios(apiString);
       console.log(fetchQuizResult)
@@ -51,7 +55,7 @@ const QuizForm = () => {
 
   return (
     <Flex width="full" align="center" justifyContent="center" p={8} h="100vh">
-      <Box p={8} maxWidth="700px" borderWidth={1} borderRadius={8} boxShadow="lg"> {/*width='31rem' borderWidth='1px' borderRadius='lg' overflow='hidden' */}
+      <Box p={8} maxWidth="700px" borderWidth={1} borderRadius={8} boxShadow="lg">
         <Flex width="full" align="center" justifyContent="center">
           <Box textAlign="center" w='80%' pl='18%'>
             <Heading color='teal.300'>Quiz Option</Heading>

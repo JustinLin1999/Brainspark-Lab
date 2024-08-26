@@ -3,7 +3,9 @@ const SECRET_KEY = process.env.JWT_SECRET;
 
 const tokenController = {};
 
-// ---------------------------- ISSUE TOKEN ---------------------------- //
+/*
+ * ISSUE TOKEN
+ */
 tokenController.issueToken = (req, res, next) => {
   console.log("In tokenController.issueToken");
   const { userId, username } = res.locals;
@@ -29,7 +31,9 @@ tokenController.issueToken = (req, res, next) => {
 };
 
 
-// ---------------------------- VERIFY TOKEN ---------------------------- //
+/*
+ * VERIFY TOKEN
+ */
 tokenController.verifyToken = (req, res, next) => {
   console.log("In tokenController.verifyToken");
   const token = req.cookies.quiz_user; // Destructure from cookies

@@ -32,7 +32,7 @@ const QuizFormContent: React.FC<QuizFormContentProps> = ({ questionNumber, setQu
         {/* Question Type */}
         <QuestionType questionTypes={questionTypes} setQuestionTypes={setQuestionTypes} />
 
-        {/* Start Quiz */}
+        {/* Start Quiz Button */}
         <Button
           color='white' _hover={{ bg: 'gray.100', color:'teal.300' }} bg='teal.300' border='1px' borderColor='#ccd0d5' width="full" mt={6} onClick={handleStartQuiz}>
           <b>S t a r t&nbsp;&nbsp;&nbsp;&nbsp;Q u i z !</b>

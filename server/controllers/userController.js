@@ -53,33 +53,6 @@ userController.verifyUser = async (req, res, next) => {
   })}
 };
 
-// userController.verifyUser = (req, res, next) => {
-//   console.log('start backend sign in');
-//   const {username, password} = req.body;
-//   Account.findOne({username})
-//     .then((account) => {
-//       console.log(account);
-//       bcrypt.compare(password, account.password, function (err, isMatch) {
-//         if (err) return next({
-//           log: 'Express error handler caught error in signIn comparing password function',
-//           status: 500,
-//           message: {err},
-//         });
-//         if (isMatch) {
-//           res.locals.userId = account.id;
-//           res.locals.username = account.username;
-//           res.locals.account = account;
-//           return next();
-//         } else return res.status(400).json({ result: 'Not Found'});
-//       });
-//     })
-//     .catch((err) => next({
-//       log:'Express error handler caught signIn error',
-//       status: 500,
-//       message: {err}
-//   }));
-// }
-
 /*
  * Create User
  */
