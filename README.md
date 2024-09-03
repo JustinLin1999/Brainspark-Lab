@@ -1,5 +1,6 @@
 # Brainspark-Lab
-
+This project is for running Brainspark-Lab on a local host.  
+Visit [here](https://brainspark-lab.vercel.app) to play it online.
 
 ## Table of Contents
 1. [About](#about-brainspark-lab)
